@@ -30,3 +30,25 @@ mae = mean_squared_error(y_test,y_pred)
 r2 = r2_score(y_test,y_pred)
 print(le.coef_)
 print(le.intercept_)
+____________________________________________________________________________________________________________________________________________________________________________
+
+2. # Logistic Regaression
+import pandas as pd
+a = pd.read_csv("loan-test.csv")
+X = a[["ApplicantIncome","CoapplicantIncome","LoanAmount"]]
+X = X.fillna(X.mean())
+y = a["Self_Employed"]
+y = y.fillna(y.mode()[0])
+
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+le.fit_transform(y)
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test= train_test_split(X,y, test_size=0.2, random_state=42)
+
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X_train,y_train)
+y_pred = model.predict(X_test)
+print(y_pred)
