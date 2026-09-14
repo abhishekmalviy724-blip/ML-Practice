@@ -52,3 +52,44 @@ model = LogisticRegression()
 model.fit(X_train,y_train)
 y_pred = model.predict(X_test)
 print(y_pred)
+____________________________________________________________________________________________________________________________________________________________________________
+
+3. # Knn 
+import pandas as pd
+
+a = pd.read_csv("loan-test.csv")
+
+X=  a[["ApplicantIncome",
+"CoapplicantIncome",
+"LoanAmount"]]
+
+X = X.fillna(X.mean())
+
+y=a["Self_Employed"]
+
+y=y.fillna(y.mode()[0])
+
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+
+b=le.fit_transform(y)
+
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,train_size=0.2,random_state=42)
+
+from sklearn.preprocessing import StandardScaler
+st = StandardScaler()
+r=st.fit_transform(X_train)
+t=st.transform(X_test)
+
+from sklearn.neighbors import KNeighborsClassifier
+kn=KNeighborsClassifier(n_neighbors=5)
+kn.fit(r,y_train)
+y_pre = kn.predict(t)
+
+from sklearn.metrics import accuracy_score,confusion_matrix
+print(accuracy_score(y_test,y_pre))
+print(confusion_matrix(y_test,y_pre))
+____________________________________________________________________________________________________________________________________________________________________________
