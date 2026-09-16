@@ -93,3 +93,22 @@ from sklearn.metrics import accuracy_score,confusion_matrix
 print(accuracy_score(y_test,y_pre))
 print(confusion_matrix(y_test,y_pre))
 ____________________________________________________________________________________________________________________________________________________________________________
+4. # Tree
+5. import pandas as pd
+a = pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount"]]
+y=a["Loan_status"]
+X=X.fillna(X.mean())
+y=y.fillna(y.mode()[0])
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,random_state=42,test_size=0.2)
+
+from sklearn.tree import DecisionTreeClassifier
+dc = DecisionTreeClassifier(max_depth=3)
+X_train_d=dc.fit(X_train,y_train)
+pred = dc.predict(X_test)
+
+from sklearn.metrics import accuracy_score
+print(accuracy_score(y_test,pred))
+____________________________________________________________________________________________________________________________________________________________________________
