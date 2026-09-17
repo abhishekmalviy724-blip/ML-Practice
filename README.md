@@ -112,3 +112,36 @@ pred = dc.predict(X_test)
 from sklearn.metrics import accuracy_score
 print(accuracy_score(y_test,pred))
 ____________________________________________________________________________________________________________________________________________________________________________
+5. # Tree Regration
+6. import pandas as pd
+
+a=pd.read_csv("loan-test.csv")
+
+X=a[["ApplicantIncome", "CoapplicantIncome", "Credit_History"]]
+
+y=a["LoanAmount"]
+
+X=X.fillna(X.median())
+
+y=y.fillna(y.median())
+
+from sklearn.model_selection  import train_test_split
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+from sklearn.tree import DecisionTreeRegressor
+
+dc=DecisionTreeRegressor(max_depth=5,random_state=42)
+
+dc.fit(X_train,y_train)
+
+pred=dc.predict(X_test)
+
+from sklearn.metrics import mean_absolute_error
+
+from sklearn.metrics import r2_score
+
+print(mean_absolute_error(y_test,pred))
+
+print(r2_score(y_test,pred))
+____________________________________________________________________________________________________________________________________________________________________________
