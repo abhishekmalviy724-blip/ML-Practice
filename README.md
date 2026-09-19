@@ -30,7 +30,7 @@ mae = mean_squared_error(y_test,y_pred)
 r2 = r2_score(y_test,y_pred)
 print(le.coef_)
 print(le.intercept_)
-____________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 2. # Logistic Regaression
 import pandas as pd
@@ -52,7 +52,7 @@ model = LogisticRegression()
 model.fit(X_train,y_train)
 y_pred = model.predict(X_test)
 print(y_pred)
-____________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 3. # Knn 
 import pandas as pd
@@ -92,7 +92,7 @@ y_pre = kn.predict(t)
 from sklearn.metrics import accuracy_score,confusion_matrix
 print(accuracy_score(y_test,y_pre))
 print(confusion_matrix(y_test,y_pre))
-____________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 4. # Tree
 5. import pandas as pd
 a = pd.read_csv("loan-test.csv")
@@ -111,7 +111,7 @@ pred = dc.predict(X_test)
 
 from sklearn.metrics import accuracy_score
 print(accuracy_score(y_test,pred))
-____________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 5. # Tree Regration
 6. import pandas as pd
 
@@ -144,4 +144,41 @@ from sklearn.metrics import r2_score
 print(mean_absolute_error(y_test,pred))
 
 print(r2_score(y_test,pred))
-____________________________________________________________________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+6. # Random Forest
+7. import pandas as pd
+a=pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome",
+"CoapplicantIncome",
+"LoanAmount",
+"Credit_History"]]
+X=X.fillna(X.median())
+y=a["Loan_status"]
+y=y.fillna(y.mode()[0])
+
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+le.fit_transform(y)
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+from sklearn.ensemble import RandomForestClassifier
+rcf = RandomForestClassifier(n_estimators=100,max_depth=5,min_samples_split=10,min_samples_leaf=5,max_features='sqrt',criterion='entropy',random_state=42,oob_score=True)
+rcf.fit(X_train,y_train)
+pred = rcf.predict(X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(accuracy_score(y_test,pred))
+print(confusion_matrix(y_test,pred))
+print(classification_report(y_test,pred))
+
+for feature, importance in zip(X.columns,rcf.feature_importances_):
+    print(feature,importance)
+    
+print(rcf.predict_proba(new))
+print(rcf.oob_score_)
+    
+new = [[6200, 2633, 150, 1]]
+print(rcf.predict(new))
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
