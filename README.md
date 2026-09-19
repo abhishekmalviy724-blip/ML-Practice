@@ -182,3 +182,52 @@ print(rcf.oob_score_)
 new = [[6200, 2633, 150, 1]]
 print(rcf.predict(new))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+7. # Bays Theorum
+8. import pandas as pd
+a=pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount", "Credit_History"]]
+X=X.fillna(X.median())
+y=a["Loan_status"]
+y=y.fillna(y.mode()[0])
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test =train_test_split(X,y,test_size=0.2,random_state=42)
+from sklearn.naive_bayes import GaussianNB
+gnb = GaussianNB()
+gnb.fit(X_train,y_train)
+pred=gnb.predict(X_test)
+pred
+
+from sklearn.naive_bayes import MultinomialNB
+mnb = MultinomialNB()
+mnb.fit(X_train,y_train)
+pred2 = mnb.predict(X_test)
+pred2
+
+from sklearn.naive_bayes import BernoulliNB
+bnb  = BernoulliNB()
+bnb.fit(X_train,y_train)
+pred3 = bnb.predict(X_test)
+pred3
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(accuracy_score(y_test,pred))
+print(confusion_matrix(y_test,pred))
+print(classification_report(y_test,pred))
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(accuracy_score(y_test,pred2))
+print(confusion_matrix(y_test,pred2))
+print(classification_report(y_test,pred2))
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(accuracy_score(y_test,pred3))
+print(confusion_matrix(y_test,pred3))
+print(classification_report(y_test,pred3))
+
+new = [[6200,2633,150,1]]
+print(gnb.predict(new))
+print(mnb.predict(new))
+print(bnb.predict(new))
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
