@@ -293,3 +293,25 @@ new = new.reindex(columns=X.columns,fill_value=0)
 new = st.fit_transform(new)
 print(sv.predict(new))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+# Ridge Regression, Lasso Regression, Elastic Net Regression, evaluation
+import pandas as pd
+a=pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome",	"CoapplicantIncome","LoanAmount"]]
+X=X.fillna(X.mean())
+y=a["Loan_Amount_Term"]
+y=y.fillna(y.mode()[0])
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,y, test_size=0.2,random_state=42)
+
+from sklearn.linear_model import ElasticNet
+r = ElasticNet(alpha=1, l1_ratio=0.5)
+r.fit(X_train,y_train)
+pred = r.predict(X_test)
+
+from sklearn.metrics import mean_absolute_error,mean_squared_error,root_mean_squared_error,r2_score
+print(root_mean_squared_error(y_test,pred))
+print(mean_squared_error(y_test,pred))
+print(mean_absolute_error(y_test,pred))
+print(r2_score(y_test,pred))
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
