@@ -275,3 +275,21 @@ print(accuracy_score(y_test, pred))
 
 print(confusion_matrix(y_test, pred))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+ # SVM Prediction
+new = pd.DataFrame([{
+    "Gender": 'Male',
+    "Dependents": 0,
+    "Education": 'Graduate',
+    "Self_Employed": 'No',
+    "ApplicantIncome": 5000,
+    "CoapplicantIncome": 2000,
+    "LoanAmount": 150,
+    "Loan_Amount_Term": 360,
+    "Credit_History": 1,
+    "Property_Area": 'Urban'
+}])
+new = pd.get_dummies(new,drop_first=True)
+new = new.reindex(columns=X.columns,fill_value=0)
+new = st.fit_transform(new)
+print(sv.predict(new))
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
