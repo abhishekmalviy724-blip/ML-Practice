@@ -233,26 +233,45 @@ print(bnb.predict(new))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 8. # SVM
-9. import pandas as pd
-a=pd.read_csv("loan-test.csv")
-X=a[["Loan_Amount_Term",	"Credit_History"]]
-X=X.fillna(X.median(numeric_only=True))
-y=a["Loan_status"]
-y=y.fillna(y.mode()[0])
+import pandas as pd
+
+a = pd.read_csv("loan-test.csv")
+
+X = a[["Gender", "Dependents", "Education", "Self_Employed",
+       "ApplicantIncome", "CoapplicantIncome", "LoanAmount",
+       "Loan_Amount_Term", "Credit_History", "Property_Area"]]
+
+X = X.fillna(X.mode().iloc[0])
+
+y = a["Loan_status"]
+y = y.fillna(y.mode()[0])
+
+X = pd.get_dummies(X, drop_first=True)
 
 from sklearn.model_selection import train_test_split
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 from sklearn.preprocessing import StandardScaler
-st=StandardScaler()
-st.fit_transform(X_train)
+
+st = StandardScaler()
+
+X_train = st.fit_transform(X_train)
+X_test = st.transform(X_test)
 
 from sklearn.svm import SVC
-for i in [0.1,1,10,100]:
-    sv = SVC(kernel='rbf',C=100)
-    sv.fit(X_train,y_train)
-    pred = sv.predict(X_test)
-from sklearn.metrics import accuracy_score,confusion_matrix
-print(i,accuracy_score(y_test,pred))
-print(confusion_matrix(y_test,pred))
+
+sv = SVC(kernel="linear")
+
+sv.fit(X_train, y_train)
+
+pred = sv.predict(X_test)
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+print(accuracy_score(y_test, pred))
+
+print(confusion_matrix(y_test, pred))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
