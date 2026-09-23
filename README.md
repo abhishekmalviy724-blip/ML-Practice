@@ -315,3 +315,40 @@ print(mean_squared_error(y_test,pred))
 print(mean_absolute_error(y_test,pred))
 print(r2_score(y_test,pred))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+# XGBClassifier
+import pandas as pd
+
+a=pd.read_csv("loan-test.csv")
+
+X=a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount"]]
+
+X=X.fillna(X.mean())
+
+y=a["Loan_status"]
+
+y=y.fillna(y.mode()[0])
+
+from sklearn.preprocessing import LabelEncoder
+lb = LabelEncoder()
+y=lb.fit_transform(y)
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+from xgboost import XGBClassifier
+
+xgb = XGBClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    max_depth=3,
+    random_state=42
+)
+
+xgb.fit(X_train, y_train)
+
+pred = xgb.predict(X_test)
+
+from sklearn.metrics import accuracy_score
+
+print(accuracy_score(y_test, pred))
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
