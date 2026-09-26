@@ -352,3 +352,41 @@ from sklearn.metrics import accuracy_score
 
 print(accuracy_score(y_test, pred))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+# K-Means
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+a=pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount"]]
+X=X.fillna(X.mean())
+
+st = StandardScaler()
+scaled = st.fit_transform(X)
+
+inertia = []
+for i in range(1,11):
+    model = KMeans(n_clusters=2, random_state=42)
+    model.fit(scaled)
+    inertia.append(model.inertia_)
+
+plt.plot(range(1,11),inertia,marker='o')
+plt.xlabel("A")
+plt.ylabel("B")
+plt.title("C")
+plt.show()
+
+k = 3
+model = KMeans(n_clusters=k,
+               init='k-means++',
+               n_init=10,
+               max_iter=300,
+               random_state=42)
+
+lable = model.fit(scaled)
+a["Cluster"] = lable
+scaler = silhouette_score(scaled,lable)
+print(scaler)
+print(a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount", "Cluster"]])
