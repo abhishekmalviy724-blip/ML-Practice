@@ -396,3 +396,29 @@ label = model.fit_predict(scaled)
 a["Cluster"]=lable
 silhouette_score(scaled,lable)
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+# PCA
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+a=pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount", "Credit_History"]]
+X=X.fillna(X.median())
+
+from sklearn.preprocessing import StandardScaler
+st = StandardScaler()
+scaled = st.fit_transform(X)
+
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+sc = pca.fit_transform(scaled)
+
+a["PCA1"]=sc[:,0]
+a["PCA2"]=sc[:,1]
+
+pca.explained_variance_ratio_
+pca.explained_variance_ratio_.sum()
+
+plt.scatter(a["PCA1"],a["PCA2"])
+plt.show()
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
