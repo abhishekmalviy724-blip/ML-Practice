@@ -354,39 +354,45 @@ print(accuracy_score(y_test, pred))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 # K-Means
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-
 a=pd.read_csv("loan-test.csv")
-X=a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount"]]
-X=X.fillna(X.mean())
+X=a[["ApplicantIncome","CoapplicantIncome","LoanAmount","Credit_History"]]
+X=X.fillna(X.median())
 
+from sklearn.preprocessing import StandardScaler
 st = StandardScaler()
 scaled = st.fit_transform(X)
 
+from sklearn.cluster import KMeans
 inertia = []
 for i in range(1,11):
-    model = KMeans(n_clusters=2, random_state=42)
-    model.fit(scaled)
-    inertia.append(model.inertia_)
-
+    m = KMeans(n_clusters=i)
+    m.fit(scaled)
+    inertia.append(m.inertia_)
+    
+import matplotlib.pyplot as plt
 plt.plot(range(1,11),inertia,marker='o')
-plt.xlabel("A")
-plt.ylabel("B")
-plt.title("C")
+plt.xlabel("Number of Clusters")
+plt.ylabel("Inertia")
+plt.title("Elbow Method")
 plt.show()
 
-k = 3
-model = KMeans(n_clusters=k,
+scores = []
+from sklearn.metrics import silhouette_score
+for j in range(2,9):
+    s = KMeans(n_clusters=j,random_state=42,n_init=10)
+    lable = s.fit_predict(scaled)
+    score = silhouette_score(scaled,lable)
+    scores.append(score)
+    max(scores)
+best_k = range(2,9)[scores.index(max(scores))]
+best_k
+    
+model = KMeans(n_clusters=best_k,
                init='k-means++',
                n_init=10,
                max_iter=300,
                random_state=42)
-
-lable = model.fit(scaled)
-a["Cluster"] = lable
-scaler = silhouette_score(scaled,lable)
-print(scaler)
-print(a[["ApplicantIncome", "CoapplicantIncome", "LoanAmount", "Cluster"]])
+label = model.fit_predict(scaled)
+a["Cluster"]=lable
+silhouette_score(scaled,lable)
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
