@@ -422,3 +422,47 @@ pca.explained_variance_ratio_.sum()
 plt.scatter(a["PCA1"],a["PCA2"])
 plt.show()
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+# Model Evaluation
+import pandas as pd
+a=pd.read_csv("loan-test.csv")
+X=a[["ApplicantIncome",
+"CoapplicantIncome",
+"LoanAmount",
+"Credit_History"]]
+y=a["Loan_status"]
+y=y.fillna(y.mode()[0])
+X=X.fillna(X.median())
+
+from sklearn.preprocessing import StandardScaler
+st = StandardScaler()
+scaled = st.fit_transform(X)
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+from sklearn.ensemble import RandomForestClassifier
+r = RandomForestClassifier()
+r.fit(X_train,y_train)
+pred = r.predict(X_test)
+
+from sklearn.metrics import accuracy_score,roc_curve
+print(accuracy_score(y_test,pred))
+print(confusion_matrix(y_test,pred))
+print(precision_score(y_test,pred,pos_label="Yes"))
+print(recall_score(y_test,pred,pos_label="Yes"))
+print(f1_score(y_test,pred,pos_label="Yes"))
+
+y_test_p = y_test.map({"No":0, "Yes":1})
+prob = r.predict_proba(X_test)[:,1]
+a,b,c = roc_curve(y_test_p,prob)
+print(a)
+print(b)
+print(c)
+import matplotlib.pyplot as plt
+plt.plot(a,b)
+plt.show()
+
+from sklearn.model_selection import cross_val_score
+s = cross_val_score(rfc,X,y,cv=5)
+s
+s.mean()
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
