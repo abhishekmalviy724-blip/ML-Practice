@@ -466,3 +466,159 @@ s = cross_val_score(rfc,X,y,cv=5)
 s
 s.mean()
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+1. Cross Validation
+import pandas as pd
+
+a = pd.read_csv("loan-test.csv")
+
+X = a[["ApplicantIncome","CoapplicantIncome","LoanAmount","Credit_History"]]
+X = X.fillna(X.median())
+
+y = a["Loan_status"]
+y = y.fillna(y.mode()[0])
+
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+scores = cross_val_score(model, X, y, cv=5)
+
+print(scores)
+print(scores.mean())
+___________________________________________________________________________________________
+2. GridSearchCV
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(random_state=42)
+
+params = {
+    "n_estimators": [50, 100, 200],
+    "max_depth": [3, 5, 10],
+    "min_samples_split": [2, 5, 10]
+}
+
+grid = GridSearchCV(model, params, cv=5, scoring="accuracy")
+
+grid.fit(X, y)
+
+print(grid.best_params_)
+print(grid.best_score_)
+______________________________________________________________________________
+3. RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(random_state=42)
+
+params = {
+    "n_estimators": [50, 100, 150, 200],
+    "max_depth": [3, 5, 10, 15, None],
+    "min_samples_split": [2, 5, 10],
+    "min_samples_leaf": [1, 2, 4]
+}
+
+random = RandomizedSearchCV(
+    model,
+    params,
+    n_iter=10,
+    cv=5,
+    scoring="accuracy",
+    random_state=42
+)
+
+random.fit(X, y)
+
+print(random.best_params_)
+print(random.best_score_)
+_______________________________________________________________________
+4. Pipeline
+
+Scaling + model ko ek saath handle kar sakte ho.
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+pipe = Pipeline([
+    ("scaler", StandardScaler()),
+    ("model", LogisticRegression(max_iter=1000))
+])
+
+pipe.fit(X, y)
+
+print(pipe.predict([[5000, 2000, 150, 1]]))
+_______________________________________________________________________
+5. Feature Selection
+SelectKBest
+from sklearn.feature_selection import SelectKBest, f_classif
+
+selector = SelectKBest(score_func=f_classif, k=2)
+
+X_new = selector.fit_transform(X, y)
+
+print(X_new.shape)
+print(selector.get_support())
+________________________________________________________________________
+6. Feature Engineering
+
+Example: total income banana.
+
+a["TotalIncome"] = a["ApplicantIncome"] + a["CoapplicantIncome"]
+
+a["IncomePerLoan"] = a["TotalIncome"] / (a["LoanAmount"] + 1)
+
+print(a[["TotalIncome","IncomePerLoan"]].head())
+_______________________________________________________________________
+7. Outlier Handling — IQR
+Q1 = a["ApplicantIncome"].quantile(0.25)
+Q3 = a["ApplicantIncome"].quantile(0.75)
+
+IQR = Q3 - Q1
+
+lower = Q1 - 1.5 * IQR
+upper = Q3 + 1.5 * IQR
+
+a = a[
+    (a["ApplicantIncome"] >= lower) &
+    (a["ApplicantIncome"] <= upper)
+]
+
+print(a.shape)
+____________________________________________________________
+8. Hierarchical Clustering
+import pandas as pd
+
+a = pd.read_csv("loan-test.csv")
+
+X = a[[
+    "ApplicantIncome",
+    "CoapplicantIncome",
+    "LoanAmount"
+]]
+
+X = X.fillna(X.median())
+
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+scaled = scaler.fit_transform(X)
+
+from sklearn.cluster import AgglomerativeClustering
+
+model = AgglomerativeClustering(n_clusters=3)
+
+clusters = model.fit_predict(scaled)
+
+print(clusters)
+______________________________________________________________________
+9. DBSCAN
+from sklearn.cluster import DBSCAN
+
+model = DBSCAN(eps=0.8, min_samples=5)
+
+clusters = model.fit_predict(scaled)
+
+print(clusters)
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
