@@ -768,3 +768,38 @@ print(precision_score(y_test,pred,average="weighted",zero_division=0))
 print(recall_score(y_test,pred,average="weighted",zero_division=0))
 print(f1_score(y_test,pred,average="weighted",zero_division=0))
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+import pandas as pd
+from sklearn.preprocessing import StandardScaler,OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from  sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age",
+"Billing Amount",
+"Room Number",
+"Gender",
+"Blood Type",
+"Medical Condition",
+"Admission Type"]]
+y=a["Test Results"]
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+numeric = ["Age","Billing Amount","Room Number"]
+cat = ["Gender", "Blood Type", "Medical Condition", "Admission Type"]
+
+co = ColumnTransformer(
+    transformers=[
+        ("num", StandardScaler(),numeric),
+        ("cat",OneHotEncoder(handle_unknown="ignore"),cat)
+    ]
+)
+pip = Pipeline(steps=[
+    ("co",co),
+    ("clss",LogisticRegression(max_iter=1000))
+])
+pip.fit(X_train,y_train)
+pred = pip.predict(X_test)
+accuracy_score(y_test,pred)
