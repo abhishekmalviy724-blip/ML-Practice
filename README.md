@@ -804,3 +804,77 @@ pip.fit(X_train,y_train)
 pred = pip.predict(X_test)
 accuracy_score(y_test,pred)
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+import pandas as pd
+from sklearn.model_selection import train_test_split,cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+
+
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age",
+"Billing Amount",
+"Room Number",
+"Gender",
+"Blood Type",
+"Medical Condition"]]
+y=a["Test Results"]
+X=X.fillna(X.mode().iloc[0])
+y=y.fillna(y.mode().iloc[0])
+X=pd.get_dummies(X,drop_first=True)
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+st = StandardScaler()
+scaled = st.fit_transform(X_train)
+# pca = PCA(n_components=0.95)
+# pca.fit_transform(X_train)
+
+LogisticRegressionn = LogisticRegression()
+LogisticRegressionn.fit(X_train,y_train)
+pred = LogisticRegressionn.predict(X_test)
+
+tree = DecisionTreeClassifier()
+tree.fit(X_train,y_train)
+pred2 = tree.predict(X_test)
+
+forset = RandomForestClassifier()
+forset.fit(X_train,y_train)
+pred3 = forset.predict(X_test)
+pred3
+
+knn = KNeighborsClassifier()
+knn.fit(X_train,y_train)
+pred4 = knn.predict(X_test)
+pred4
+
+svc = SVC()
+svc.fit(X_train,y_train)
+pred5 = svc.predict(X_test)
+pred5
+
+cross = cross_val_score(svc,X,y,cv=5,scoring="accuracy")
+cross.mean()
+cross.std()
+cross2 = cross_val_score(knn,X,y,cv=5,scoring="accuracy")
+cross2.mean()
+cross2.std()
+cross3 = cross_val_score(forset,X,y,cv=5,scoring="accuracy")
+cross3.mean()
+cross3.std()
+cross4 = cross_val_score(tree,X,y,cv=5,scoring="accuracy")
+cross4.mean()
+cross4.std()
+cross5 = cross_val_score(LogisticRegressionn,X,y,cv=5,scoring="accuracy")
+cross5.mean()
+cross5.std()
+
+
+# accuracy_score(y_test,pred)
+# precision_score(y_test,pred,average="weighted")
+# recall_score(y_test,pred,average="weighted")
+# f1_score(y_test,pred,average="weighted")
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
