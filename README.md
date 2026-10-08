@@ -878,3 +878,47 @@ cross5.std()
 # recall_score(y_test,pred,average="weighted")
 # f1_score(y_test,pred,average="weighted")
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler,OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age","Billing Amount","Room Number","Gender","Blood Type","Medical Condition","Admission Type"]]
+y=a["Test Results"]
+
+X=X.fillna(X.mode().iloc[0])
+y=y.fillna(y.mode().iloc[0])
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+c = ["Gender","Blood Type","Medical Condition","Admission Type"]
+n = ["Age","Billing Amount","Room Number"]
+
+pre = ColumnTransformer(
+    transformers=[
+        ("StandardScaler",StandardScaler(),n),
+        ("OneHotEncoder",OneHotEncoder(handle_unknown="ignore"),c)
+    ]
+)
+
+pip = Pipeline(
+    steps=[
+        ("pre",pre),
+        ("smote",SMOTE(random_state=42)),
+        ("LogisticRegression",LogisticRegression(random_state=42,max_iter=1000))
+    ]
+)  
+
+pip.fit(X_train,y_train)
+pred = pip.predict(X_test)
+print(accuracy_score(y_test,pred))
+print(precision_score(y_test,pred,average="weighted"))
+print(recall_score(y_test,pred,average="weighted"))
+print(f1_score(y_test,pred,average="weighted"))
+print(confusion_matrix(y_test,pred))
