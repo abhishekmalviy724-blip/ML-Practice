@@ -922,3 +922,156 @@ print(precision_score(y_test,pred,average="weighted"))
 print(recall_score(y_test,pred,average="weighted"))
 print(f1_score(y_test,pred,average="weighted"))
 print(confusion_matrix(y_test,pred))
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression, Ridge, Lasso, ElasticNet, LinearRegression
+from sklearn.svm import SVC, SVR
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, AdaBoostClassifier, ExtraTreesClassifier, VotingClassifier, StackingClassifier
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, mean_absolute_error, mean_squared_error, r2_score, silhouette_score
+
+a = pd.read_csv("healthcare_dataset.csv")
+
+print(a.shape)
+print(a.columns)
+print(a.info())
+print(a.isnull().sum())
+print(a.duplicated().sum())
+
+a = a.drop_duplicates()
+
+a["Date of Admission"] = pd.to_datetime(a["Date of Admission"], errors="coerce")
+a["Discharge Date"] = pd.to_datetime(a["Discharge Date"], errors="coerce")
+
+a["Total Stay Days"] = (
+    a["Discharge Date"] - a["Date of Admission"]
+).dt.days
+
+a = a.dropna(subset=["Test Results"])
+
+X = a[
+    [
+        "Age",
+        "Billing Amount",
+        "Room Number",
+        "Gender",
+        "Medical Condition",
+        "Blood Type",
+        "Admission Type",
+        "Medication",
+        "Insurance Provider"
+    ]
+]
+
+y = a["Test Results"]
+
+numeric = ["Age", "Billing Amount", "Room Number"]
+
+categorical = [
+    "Gender",
+    "Medical Condition",
+    "Blood Type",
+    "Admission Type",
+    "Medication",
+    "Insurance Provider"
+]
+
+numeric_preprocessor = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", StandardScaler())
+    ]
+)
+
+categorical_preprocessor = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("encoder", OneHotEncoder(
+    handle_unknown="ignore",
+    sparse_output=False
+))
+    ]
+)
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("numeric", numeric_preprocessor, numeric),
+        ("categorical", categorical_preprocessor, categorical)
+    ]
+)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
+)
+
+models = {
+    "Logistic Regression": LogisticRegression(max_iter=2000),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "Random Forest": RandomForestClassifier(random_state=42, n_jobs=-1),
+    "KNN": KNeighborsClassifier(),
+    "SVC": SVC(),
+    "Naive Bayes": GaussianNB(),
+    "Gradient Boosting": GradientBoostingClassifier(random_state=42),
+    "AdaBoost": AdaBoostClassifier(random_state=42),
+    "Extra Trees": ExtraTreesClassifier(random_state=42, n_jobs=-1)
+}
+
+results = []
+
+for name, model in models.items():
+    pipe = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("classifier", model)
+        ]
+    )
+
+    pipe.fit(X_train, y_train)
+    pred = pipe.predict(X_test)
+
+    accuracy = accuracy_score(y_test, pred)
+    f1 = f1_score(y_test, pred, average="weighted")
+
+    cv_scores = cross_val_score(
+        pipe,
+        X_train,
+        y_train,
+        cv=5,
+        scoring="accuracy",
+        n_jobs=-1
+    )
+
+    results.append({
+        "Model": name,
+        "Accuracy": accuracy,
+        "Weighted F1": f1,
+        "CV Mean": cv_scores.mean()
+    })
+
+    print("\nModel:", name)
+    print(confusion_matrix(y_test, pred))
+    print(classification_report(y_test, pred, zero_division=0))
+
+results = pd.DataFrame(results).sort_values(
+    by="Weighted F1",
+    ascending=False
+)
+
+print(results)
