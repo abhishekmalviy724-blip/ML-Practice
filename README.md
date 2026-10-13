@@ -1075,3 +1075,41 @@ results = pd.DataFrame(results).sort_values(
 )
 
 print(results)
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+
+X = a[["Age", "Billing Amount", "Room Number", "Gender", "Blood Type", "Medical Condition", "Admission Type"]]
+y = a["Test Results"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+numeric_features = ["Age", "Billing Amount", "Room Number"]
+categorical_features = ["Gender", "Blood Type", "Medical Condition", "Admission Type"]
+
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler())
+])
+
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)
+    ]
+)
+
+X_train_transformed = preprocessor.fit_transform(X_train)
+X_test_transformed = preprocessor.transform(X_test)
+
+print("X_train transformed shape:", X_train_transformed.shape)
+print("X_test transformed shape:", X_test_transformed.shape)
