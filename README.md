@@ -1113,3 +1113,72 @@ X_test_transformed = preprocessor.transform(X_test)
 
 print("X_train transformed shape:", X_train_transformed.shape)
 print("X_test transformed shape:", X_test_transformed.shape)
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler,OneHotEncoder
+from sklearn.metrics import accuracy_score,precision_score,f1_score,recall_score,classification_report,confusion_matrix
+
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age","Billing Amount","Room Number","Gender"]]
+y=a["Test Results"]
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+n=["Age","Billing Amount","Room Number"]
+c=["Gender"]
+pre = ColumnTransformer(
+    transformers=[
+        ("st",StandardScaler(),n),
+        ("one",OneHotEncoder(handle_unknown="ignore"),c)
+    ]
+)
+Pipelin = Pipeline(
+    steps=[
+        ("pre",pre),
+        ("ran",RandomForestClassifier(max_depth=20,
+                                      min_samples_split=10,
+                                      min_samples_leaf=2,
+                                      class_weight="balanced",
+                                      random_state=42))
+    ]
+)
+Pipelin.fit(X_train, y_train)
+
+y_train_pred = Pipelin.predict(X_train)
+y_test_pred = Pipelin.predict(X_test)
+
+print("--- Test Data Metrics ---")
+print(f"Accuracy:  {accuracy_score(y_test, y_test_pred):.4f}")
+print(f"Precision: {precision_score(y_test, y_test_pred, average='weighted'):.4f}")
+print(f"F1-Score:  {f1_score(y_test, y_test_pred, average='weighted'):.4f}")
+print(f"Recall:    {recall_score(y_test, y_test_pred, average='weighted'):.4f}")
+
+print("\n--- Training Data Report & Confusion Matrix ---")
+print(classification_report(y_train, y_train_pred))
+print(confusion_matrix(y_train, y_train_pred))
+
+print("\n--- Accuracy Comparison ---")
+print(f"Training Accuracy:   {accuracy_score(y_train, y_train_pred):.4f}")
+print(f"Testing Accuracy:    {accuracy_score(y_test, y_test_pred):.4f}")
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8,5))
+y_train.value_counts().plot(kind="bar",color="skyblue",edgecolor='black')
+plt.show()
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8,5))
+y_test.value_counts().plot(kind="bar",color="skyblue",edgecolor='black')
+plt.show()
+
+print(pd.Series(y_test_pred).value_counts())
+
+train_dist = y_train.value_counts(normalize=True)*100
+test_dist = y_test.value_counts(normalize=True)*100
+compare = pd.DataFrame({
+    "train_dist":train_dist,
+    "test_dist":train_dist
+})
+print(compare.round(2))
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
