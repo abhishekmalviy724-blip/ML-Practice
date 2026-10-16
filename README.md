@@ -1182,3 +1182,49 @@ compare = pd.DataFrame({
 })
 print(compare.round(2))
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Gender", "Blood Type", "Medical Condition", "Admission Type"]]
+y=a["Test Results"]
+X=X.fillna(X.mode().iloc[0])
+y=y.fillna(y.mode().iloc[0])
+label = LabelEncoder()
+labeld = label.fit_transform(y)
+labeld2 = label.transform(y)
+__________________________________________________________________________
+colom = ['Gender', 'Blood Type', 'Medical Condition', 'Admission Type']
+X = a[colom].copy()
+frq = {}
+for i in colom:
+    le = LabelEncoder()
+    X[i]=le.fit_transform(X[i])
+    frq[i]=le
+print(X.head(5))
+______________________________________________________________________________
+category = a.fillna(a.select_dtypes(include=["object","category"]).mode().iloc[0])
+
+X = category.copy()
+frq = {}
+for i in category:
+    le = LabelEncoder()
+    X[i]=le.fit_transform(X[i])
+    frq[i]=le
+print(X.head(5))
+print(X.isnull().sum().sum())
+_______________________________________________________________________________________
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+train = pd.Series(["Indore", "Bhopal", "Ujjain", "Indore"])
+test = pd.Series(["Bhopal", "Indore", "Dewas"])
+
+le = LabelEncoder()
+train_encoded = le.fit_transform(train)
+
+maaping = {l: i for i, l in enumerate(le.classes_)}
+encoed = [maaping.get(val,-1)for val in test]
+
+print(train_encoded)
+print(encoed)
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
