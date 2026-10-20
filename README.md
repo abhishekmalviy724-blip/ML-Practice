@@ -1228,3 +1228,56 @@ encoed = [maaping.get(val,-1)for val in test]
 print(train_encoded)
 print(encoed)
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+from common_imports import *
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age","Billing Amount","Room Number","Gender", "Blood Type", "Medical Condition", "Admission Type", "Medication"]]
+y=a["Test Results"]
+X = X.fillna(X.mode().iloc[0])
+y = y.fillna(y.mode().iloc[0])
+
+
+
+c=["Gender", "Blood Type", "Medical Condition", "Admission Type", "Medication"]
+n = ["Age","Billing Amount","Room Number"]
+
+X = pd.get_dummies(X,columns=c,dtype=int)
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+
+r = RandomForestClassifier(n_estimators=200,max_depth=5,min_samples_split=10,min_samples_leaf=5,max_features="sqrt",random_state=42,class_weight="balanced")
+
+r.fit(X_train,y_train)
+pred = r.predict(X_test)
+print(pred)
+print(accuracy_score(y_test,pred)*100)
+print(precision_score(y_test,pred,average="weighted")*100)
+print(recall_score(y_test,pred,average="weighted")*100)
+print(f1_score(y_test,pred,average="weighted")*100)
+
+imp = r.feature_importances_
+for feature,importance in zip(X.columns, imp):
+    print(feature,importance)
+__________________________________________________________________________________________________
+from sklearn.dummy import DummyClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import GradientBoostingClassifier
+
+print(y.value_counts(normalize=True))
+print("Dummy:", cross_val_score(DummyClassifier(strategy="most_frequent"), X, y, cv=5).mean())
+print("GB   :", cross_val_score(GradientBoostingClassifier(), X, y, cv=5).mean())
+print("Duplicates:", a.duplicated().sum())
+_______________________________________________________________________________________________
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import accuracy_score, f1_score
+
+data = load_breast_cancer(as_frame=True)
+X, y = data.data, data.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+for name, m in [("Dummy", DummyClassifier(strategy="most_frequent")),
+                ("RF", RandomForestClassifier(n_estimators=200, random_state=42))]:
+    p = m.fit(X_train, y_train).predict(X_test)
+    print(name, accuracy_score(y_test, p)*100, f1_score(y_test, p)*100)
