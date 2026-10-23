@@ -1281,7 +1281,7 @@ for name, m in [("Dummy", DummyClassifier(strategy="most_frequent")),
                 ("RF", RandomForestClassifier(n_estimators=200, random_state=42))]:
     p = m.fit(X_train, y_train).predict(X_test)
     print(name, accuracy_score(y_test, p)*100, f1_score(y_test, p)*100)
-_________________________________________________________________________________________________
+________________________________________________________________________________________________________
 from common_imports import *
 a=pd.read_csv("healthcare_dataset.csv")
 X=a[["Age", "Billing Amount", "Room Number"]]
@@ -1308,3 +1308,59 @@ print(grd.best_score_)
 print(grd.best_params_)
 pred = grd.predict(X_test)
 print(accuracy_score(y_test,pred))
+_______________________________________________________________________________________________________________________
+from common_imports import *
+
+a=pd.read_csv("healthcare_dataset.csv")
+X = a[["Age", "Billing Amount", "Room Number", "Gender", "Blood Type"]]
+y=a["Test Results"]
+X=X.fillna(X.mode().iloc[0])
+y=y.fillna(y.mode().iloc[0])
+
+c = ["Gender", "Blood Type"]
+n = ["Age", "Billing Amount", "Room Number"]
+
+pipc = Pipeline(
+    steps=[
+        ("SimpleImputer",SimpleImputer(strategy="most_frequent")),
+        ("LabelEncoder",OneHotEncoder(handle_unknown="ignore"))
+    ]
+)
+pipn = Pipeline(
+    steps=[
+        ("SimpleImputer",SimpleImputer(strategy="median")),
+        ("StandardScaler",StandardScaler())
+    ]
+)
+pre = ColumnTransformer(
+    transformers=[
+        ("pipc",pipc,c),
+        ("pipn",pipn,n),
+    ]
+)
+model = Pipeline(
+    steps=[
+        ("pre",pre),
+        ("RandomForestClassifier",RandomForestClassifier(random_state=42))
+    ]
+)
+param_grid={
+        "RandomForestClassifier__max_depth":[1,3,5,10,None],
+        "RandomForestClassifier__min_samples_split":[2,5,10],
+        "RandomForestClassifier__min_samples_leaf": [1, 2, 4],
+        "RandomForestClassifier__criterion":["gini","entropy"]
+}
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+grd = GridSearchCV(
+    estimator=model,
+    param_grid=param_grid,
+    cv=5,
+    scoring="accuracy",
+    n_jobs=-1
+)
+grd.fit(X_train,y_train)
+print(grd.best_score_)
+print(grd.best_params_)
+print(grd.score(X_train,y_train))
+print(grd.score(X_test,y_test))
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
