@@ -1281,3 +1281,30 @@ for name, m in [("Dummy", DummyClassifier(strategy="most_frequent")),
                 ("RF", RandomForestClassifier(n_estimators=200, random_state=42))]:
     p = m.fit(X_train, y_train).predict(X_test)
     print(name, accuracy_score(y_test, p)*100, f1_score(y_test, p)*100)
+_________________________________________________________________________________________________
+from common_imports import *
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age", "Billing Amount", "Room Number"]]
+y=a["Test Results"]
+X=X.fillna(X.median())
+y=y.fillna(y.mode()[0])
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+grd = GridSearchCV(
+    estimator=DecisionTreeClassifier(),
+    param_grid={
+        "max_depth":[1,3,5,10,None],
+        "min_samples_split":[2,5,10],
+        "min_samples_leaf": [1, 2, 4],
+        "criterion":["gini","entropy"]
+    },
+    cv=5,
+    scoring="accuracy",
+    n_jobs=-1
+)
+grd.fit(X_train,y_train)
+print(grd.best_score_)
+print(grd.best_params_)
+pred = grd.predict(X_test)
+print(accuracy_score(y_test,pred))
