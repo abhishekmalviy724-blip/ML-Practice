@@ -1364,3 +1364,69 @@ print(grd.best_params_)
 print(grd.score(X_train,y_train))
 print(grd.score(X_test,y_test))
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+from common_imports import *
+df = pd.read_csv("healthcare_dataset.csv")
+X = df[["Age", "Billing Amount", "Room Number", "Gender", "Blood Type"]]
+y = df["Test Results"]
+
+X = X.fillna(X.mode().iloc[0])
+y = y.fillna(y.mode().iloc[0])
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+c = X.select_dtypes(include=["object","category"]).columns
+n = X.select_dtypes("number").columns
+
+pip_n = Pipeline(
+    steps=[
+        ("SimpleImputer",SimpleImputer(strategy="median")),
+
+        ("StandardScaler",StandardScaler())
+    ]
+)
+pip_c = Pipeline(
+    steps=[
+        ("SimpleImputer",SimpleImputer(strategy="most_frequent")),
+        ("OneHotEncoder",OneHotEncoder(handle_unknown="ignore"))
+    ]
+)
+pre = ColumnTransformer(
+    transformers=[
+        ("pipn",pip_n,n),
+        ("pipc",pip_c,c)
+    ]
+)
+
+model = Pipeline(
+    steps=[
+        ("pre",pre),
+        ("RandomForestClassifier",RandomForestClassifier(random_state=42))
+    ]
+)
+model.fit(X_train,y_train)
+pred=model.predict(X_test)
+print(model.score(X_train,y_train))
+print(model.score(X_test,y_test))
+print(classification_report(y_test,pred))
+
+model = RandomForestClassifier()
+param_grid = {
+    "classifier__n_estimators": [100, 200, 300],
+    "classifier__max_depth": [None, 10, 20, 30],
+    "classifier__min_samples_split": [2, 5, 10],
+    "classifier__min_samples_leaf": [1, 2, 4],
+    "classifier__max_features": ["sqrt", "log2"],
+    "classifier__class_weight": [None, "balanced"]
+}
+grd = GridSearchCV(
+    estimator=model,
+    param_grid=param_grid,
+    cv=5,
+    scoring="accuracy",
+    n_jobs=-1
+)
+grd.fit(X_train,y_train)
+print(grd.best_params_)
+print(grd.score(X_test,y_test))
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
