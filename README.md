@@ -1430,3 +1430,32 @@ grd.fit(X_train,y_train)
 print(grd.best_params_)
 print(grd.score(X_test,y_test))
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+from common_imports import *
+a=pd.read_csv("healthcare_dataset.csv")
+X=a[["Age","Billing Amount","Room Number"]]
+y=a["Test Results"]
+X=X.fillna(X.median())
+y=y.fillna(y.mode()[0])
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+param_grid = {
+    "n_estimators": [100, 200, 300],
+    "max_depth": [None, 10, 20],
+    "min_samples_split": [2, 5, 10],
+    "min_samples_leaf": [1, 2, 4]
+}
+grd = GridSearchCV(
+    estimator=RandomForestClassifier(),
+    param_grid=param_grid,
+    cv=5,
+    scoring="accuracy",
+    n_jobs=-1,
+    verbose=1
+)
+grd.fit(X_train,y_train)
+print(grd.best_score_)
+print(grd.best_params_)
+pred = grd.predict(X_test)
+loss,accuracy=grd.evaluate(X_test,y_test)
+print(loss)
+print(accuracy)
+____________________________________________________________________________________________
